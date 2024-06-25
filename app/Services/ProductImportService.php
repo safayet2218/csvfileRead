@@ -105,7 +105,5 @@ class ProductImportService
         }else{
             return false;
         }
-
-        return true;
     }
 }
