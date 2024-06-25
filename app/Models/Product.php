@@ -12,4 +12,5 @@ class Product extends Model
     protected $table = 'tblProductData';
 
     public $timestamps = false;
+    protected $primaryKey = 'strProductCode';
 }

@@ -44,14 +44,19 @@ class ProductImportService
                     continue;
                 }
 
-                $product = new Product;
+                $product = Product::where('strProductCode', $data['Product Code'])->first();
+
+                if(!isset($product)){
+                    $product = new Product;
+                    $product->strProductCode = $data['Product Code'];
+                }
                 // Map data to product model properties
                 $product->strProductName = $data['Product Name'];
                 $product->strProductDesc = $data['Product Description'];
-                $product->strProductCode = $data['Product Code'];
+
                 $product->dtmDiscontinued = $data['Discontinued'];
                 $product->stock_level = $data['Stock'];
-                $product->price = $data['Cost in GBP'];
+                $product->price = ($data['Cost in GBP']);
                 $product->dtmDiscontinued = $data['Discontinued'] === 'yes'? Carbon::now() : null;
 
                 // Apply discontinued logic based on data['discontinued']
@@ -60,17 +65,18 @@ class ProductImportService
                     // Simulate insert without actually saving to database
                     $success++;
                 } else {
-                    if (!$product->save()) {
-                        $failed[] = ['message' => "Failed to save product '{$data['Product Name']}'"];
-                    } else {
-                        $success++;
+                    try {
+                        if (!$product->save()) {
+                            $failed[] = ['message' => "Failed to save product '{$data['Product Name']}'"];
+                        } else {
+                            $success++;
+                        }
+                    } catch (\Exception $e) {
+                        $errorMessage = $e->getMessage() ?? 'Unknown error saving product';
+                        $failed[] = ['message' => "Failed to save product '{$data['Product Name']}': {$errorMessage}"];
                     }
                 }
             }
-
-
-
-
         }
 
         return [
